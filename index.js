@@ -3,7 +3,8 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const fetch = (...args) =>
+  import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -29,7 +30,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
     console.log('Connected to MongoDB');
 
     const userCollection = client.db('oyouworld').collection('user');
@@ -124,7 +125,6 @@ async function run() {
       res.send(result);
     });
 
-    // Google Search API Route
     // Corrected version
     app.get('/search', async (req, res) => {
       const query = req.query.q;
@@ -133,9 +133,7 @@ async function run() {
       }
 
       try {
-        const url = `https://www.googleapis.com/customsearch/v1?key=${
-          process.env.GOOGLE_API_KEY
-        }&cx=${process.env.GOOGLE_CSE_ID}&q=${encodeURIComponent(query)}`;
+        const url = `https://customsearch.googleapis.com/customsearch/v1?key=${process.env.GOOGLE_API_KEY}&cx=${process.env.SEARCH_ENGINE_ID}&q=${query}`;
 
         const response = await fetch(url);
         const data = await response.json();
@@ -148,7 +146,7 @@ async function run() {
           image: item.pagemap?.cse_image?.[0]?.src || null,
         }));
 
-        res.json(results); // শুধু results array পাঠাচ্ছি
+        res.json(results);
       } catch (error) {
         console.error('Search API error:', error);
         res.status(500).json({ error: 'Failed to fetch search results' });
